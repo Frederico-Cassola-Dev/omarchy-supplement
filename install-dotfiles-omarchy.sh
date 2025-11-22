@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 ORIGINAL_DIR=$(pwd)
 REPO_URL="https://github.com/frederico-cassola-dev/dotfiles-omarchy"
