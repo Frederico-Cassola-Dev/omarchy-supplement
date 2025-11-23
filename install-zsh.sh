@@ -1,7 +1,14 @@
 #!/usr/bin/env bash
 
 # Install zsh
- if ! command -v zsh &>/dev/null; then
-   yay -S --noconfirm --needed zsh
- fi
+
+echo "#--- Zsh instalation ---#"
+
+if ! command -v zsh &>/dev/null; then
+  echo "Installing zsh shell..."
+
+  yay -S --noconfirm --needed zsh || { echo "ERROR: --> Failed to install zsh"; exit 1; }
+else
+  echo "WARNING -> Zsh already installed, skipping installation"
+fi
 

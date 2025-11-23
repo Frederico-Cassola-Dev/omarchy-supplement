@@ -5,7 +5,7 @@ REPO_URL="https://github.com/frederico-cassola-dev/dotfiles-omarchy"
 REPO_NAME="dotfiles-omarchy"
 
 is_stow_installed() {
-  pacman -Qi "stow" &> /dev/null
+  pacman -Qi "stow" &>/dev/null
 }
 
 if ! is_stow_installed; then
@@ -15,25 +15,39 @@ fi
 
 cd ~
 
+clone_success=1 # Default to success if repo already exists
+
 # Check if the repository already exists
 if [ -d "$REPO_NAME" ]; then
   echo "Repository '$REPO_NAME' already exists. Skipping clone"
 else
   git clone "$REPO_URL"
-fi 
+  clone_success=$?
+fi
 
-# Check if the clone was successful
-if [ $? -eq 0 ]; then
+# Proceed only if cloning succeeded or repo existed
+if [ $clone_success -eq 0 ]; then
   echo "removing old configs"
-  # To uncomment when every thing is done
-  # rm -rf ~/.config/nvim ~/.config/starship.toml ~/.local/share/nvim/ ~/.cache/nvim/ ~/.config/ghostty/config
-  rm -rf ~/.config/starship.toml
+  # To uncomment when everything is done:
+  trash-put ~/.bashrc
+  trash-put ~/.bash_profile
+  trash-put ~/.zshrc
+  trash-put ~/.config/ghostty/config
+  trash-put ~/.config/starship.toml
+  trash-put ~/.config/nvim
+  trash-put ~/.local/share/nvim/
+  trash-put ~/.cache/nvim/
+  trash-put ~/.config/hypr/bindings.conf
+  trash-put ~/.config/hypr/looknfeel.conf
+  trash-put ~/.config/hypr/monitors.conf
 
   cd "$REPO_NAME"
+  stow bashrc
   stow zshrc
-  # stow ghostty
-  # stow tmux
-  # stow nvim
+  stow ghostty
+  stow hypr
+  stow startup-omarchy
+  stow nvim
   stow starship
 else
   echo "Failed to clone the repository."

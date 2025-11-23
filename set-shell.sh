@@ -1,6 +1,8 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 # Check if zsh is installed
+echo "#--- Set ZSH as default shell ---#"
+
 if ! command -v zsh &>/dev/null; then
     echo "Zsh is not installed. Please run ./install-packages.sh first."
     exit 1
