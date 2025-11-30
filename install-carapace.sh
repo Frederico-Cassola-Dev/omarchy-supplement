@@ -1,13 +1,16 @@
 #!/usr/bin/env bash
 
 # Install carapace
+PACKAGE_NAME='carapace'
 
-echo "#--- Carapace instalation ---#"
-
-if ! command -v carapace &>/dev/null; then
-  echo "Installing Carapace..."
-
-  yay -S --noconfirm --needed carapace|| { echo "ERROR: --> Failed to install carapace"; exit 1; }
+if ! command -v "$PACKAGE_NAME" &>/dev/null; then
+	echo "📥 ==> Installing '$PACKAGE_NAME' package..."
+	if yay -S --noconfirm --needed "$PACKAGE_NAME"; then
+		echo "✅ SUCCESS ==> '$PACKAGE_NAME' package installed with success !"
+	else
+		echo "❌ ERROR ==> Failed to install '$PACKAGE_NAME' package !!!"
+		exit 1
+	fi
 else
-  echo "WARNING -> Carapace already installed, skipping installation"
+	echo "⚠️ WARNING ==> '$PACKAGE_NAME' already installed, skipping installation"
 fi

@@ -1,13 +1,17 @@
 #!/usr/bin/env bash
 
-# Install zsh
+# Install trash-cli
+PACKAGE_NAME='trash-cli'
+PACKAGE_NAME_VERSION='trash'
 
-echo "#--- Trash-cli instalation ---#"
-
- if ! command -v trash &>/dev/null; then
-  echo "Installing trash-cli..."
-
-   yay -S --noconfirm --needed trash-cli || { echo "ERROR: --> Failed to install trash-cli"; exit 1; }
- else
-  echo "WARNING -> Trash-cli already installed, skipping installation"
- fi
+if ! command -v "$PACKAGE_NAME_VERSION" &>/dev/null; then
+	echo "📥 ==> Installing '$PACKAGE_NAME' package..."
+	if yay -S --noconfirm --needed "$PACKAGE_NAME"; then
+		echo "✅ SUCCESS ==> '$PACKAGE_NAME' package installed with success !"
+	else
+		echo "❌ ERROR ==> Failed to install '$PACKAGE_NAME' package !!!"
+		exit 1
+	fi
+else
+	echo "⚠️ WARNING ==> '$PACKAGE_NAME' already installed, skipping installation"
+fi
