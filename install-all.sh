@@ -4,6 +4,7 @@
 
 ./install-ghostty.sh
 ./install-zsh.sh
+./install-tmux.sh
 ./install-ghostty.sh
 ./install-trash-cli.sh
 ./install-carapace.sh
