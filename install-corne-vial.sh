@@ -17,10 +17,13 @@ udevadm trigger
 
 echo "✅ Official Vial udev rule added (59-vial.rules)"
 
-# 2. YOUR Corne-specific rule (VID:4653=0x123d PID:0004)
+# 2. YOUR Corne-specific rule (VID:0x123d PID:0x0004) - Updated
 sudo tee /etc/udev/rules.d/60-vial-corne.rules >/dev/null <<'EOF'
-# Corne v4.1 (VID:4653=0x123d, PID:0004, serial:vial:f64c2b3c)
-KERNEL=="hidraw*", SUBSYSTEM=="hidraw", ATTRS{serial}=="*vial:f64c2b3c*", ATTRS{idVendor}=="123d", ATTRS{idProduct}=="0004", MODE="0660", GROUP="users", TAG+="uaccess", TAG+="udev-acl"
+# Corne v4.1 (VID:4653=0x123d, PID:0004) - Multiple serial patterns
+KERNEL=="hidraw*", SUBSYSTEM=="hidraw", ATTRS{idVendor}=="123d", ATTRS{idProduct}=="0004", MODE="0660", GROUP="users", TAG+="uaccess", TAG+="udev-acl"
+
+# Specific serial variants (backup rules)
+KERNEL=="hidraw*", SUBSYSTEM=="hidraw", ATTRS{serial}=="*vial:f64c2b3c*", ATTRS{idVendor}=="123d", MODE="0660", GROUP="users", TAG+="uaccess", TAG+="udev-acl"
 EOF
 
 sudo udevadm control --reload-rules && sudo udevadm trigger
