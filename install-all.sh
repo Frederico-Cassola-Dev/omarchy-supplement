@@ -8,6 +8,7 @@
 ./install-ghostty.sh
 ./install-trash-cli.sh
 ./install-carapace.sh
+./install-atuin.sh
 ./install-gemini.sh
 ./install-stow.sh
 ./install-dotfiles-omarchy.sh
