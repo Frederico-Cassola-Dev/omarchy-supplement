@@ -4,8 +4,8 @@
 # Run this command to put it globally with the command manage-statck.sh or manage (alias)
 #
 # Intructions
-# 1. Copie dans /usr/local/bin/ (global)
-# sudo cp manage.sh /usr/local/bin/manage-stack.sh
+# 1. Copie le fichier manage-stack.sh dans /usr/local/bin/ (global)
+# sudo cp manage-stack.sh /usr/local/bin/manage-stack.sh
 
 # 2. Permissions exécutables
 # sudo chmod +x /usr/local/bin/manage-stack.sh
