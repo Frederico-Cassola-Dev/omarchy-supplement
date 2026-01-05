@@ -1,10 +1,27 @@
 #!/usr/bin/env bash
 
+# ----------------------------------------------------------------------------------------
+# Run this command to put it globally with the command manage-statck.sh or manage (alias)
+#
 # Intructions
-# run this command to put it globally with the command
+# 1. Copie dans /usr/local/bin/ (global)
+# sudo cp manage.sh /usr/local/bin/manage-stack.sh
+
+# 2. Permissions exécutables
+# sudo chmod +x /usr/local/bin/manage-stack.sh
+# sudo chmod 755 /usr/local/bin/manage-stack.sh
+
+# 3. Vérifie
+# which manage
+# → /usr/local/bin/manage ✓
+#
+# 4. Add an alias into your zsh config
+# alias manage='manage-stack.sh'
+#
 # manage      -> Give the status
 # manage up   -> Up all the containers
 # manage down -> Down all the containers
+# ----------------------------------------------------------------------------------------
 set -e
 
 WORKSPACE="$HOME/workspace"
