@@ -1,45 +1,45 @@
 #!/usr/bin/env bash
-
-# Official Vial Corne v4.1 Setup Script (VID:4653=0x123d PID:0004 serial:vial:f64c2b3c)
+# Vial Corne Setup Script
+# This version uses the user's own group to avoid permission issues.
 # Based on: https://get.vial.today/manual/linux-udev.html
 
 set -e # Exit on any error
 
-echo "🛠️  Official Vial setup for Corne v4.1 (VID:4653 PID:0004 serial:vial:f64c2b3c)..."
+echo "🛠️  Vial setup for Corne v4.1..."
 
 ########################################
-# 1. Official universal Vial rule
+# 1. Create a single, correct udev rule for the current user
 ########################################
 
 export USER_GID="$(id -g)"
+export USER_NAME="$(whoami)"
 
-sudo --preserve-env=USER_GID sh -c '
-echo "KERNEL==\"hidraw*\", SUBSYSTEM==\"hidraw\", ATTRS{serial}==\"*vial:f64c2b3c*\", MODE=\"0660\", GROUP=\"$USER_GID\", TAG+=\"uaccess\", TAG+=\"udev-acl\"" \
-  > /etc/udev/rules.d/59-vial.rules &&
-udevadm control --reload-rules &&
-udevadm trigger
-'
+echo "Setting up udev rule for user '$USER_NAME' (group ID: $USER_GID)..."
 
-echo "✅ Official Vial udev rule added (59-vial.rules)"
-
-########################################
-# 2. Corne‑specific hidraw rule
-########################################
-
-sudo tee /etc/udev/rules.d/60-vial-corne.rules >/dev/null <<'EOF'
-# Corne v4.1 (VID:4653=0x123d, PID:0004)
-KERNEL=="hidraw*", SUBSYSTEM=="hidraw", ATTRS{idVendor}=="123d", ATTRS{idProduct}=="0004", MODE="0660", GROUP="users", TAG+="uaccess", TAG+="udev-acl"
-
-# Specific serial variant (extra safety)
-KERNEL=="hidraw*", SUBSYSTEM=="hidraw", ATTRS{serial}=="*vial:f64c2b3c*", ATTRS{idVendor}=="123d", MODE="0660", GROUP="users", TAG+="uaccess", TAG+="udev-acl"
+# This command creates a rule file that gives your user group access to the keyboard.
+# The `tee` command allows us to write the file with `sudo`.
+sudo tee /etc/udev/rules.d/59-vial.rules >/dev/null <<EOF
+# For Vial-enabled keyboards, like the Corne v4.1
+# This rule grants access to the user group of the person who ran the script.
+KERNEL=="hidraw*", ATTRS{idVendor}=="4653", ATTRS{idProduct}=="0004", MODE="0660", GROUP="$USER_GID", TAG+="uaccess"
 EOF
 
-sudo udevadm control --reload-rules && sudo udevadm trigger
+echo "✅ Vial udev rule created (/etc/udev/rules.d/59-vial.rules)"
 
-echo "✅ Corne-specific rule added (60-vial-corne.rules)"
+# Clean up the old, conflicting rule file just in case it's still there
+if [ -f /etc/udev/rules.d/60-vial-corne.rules ]; then
+    echo "Removing old conflicting rule file (60-vial-corne.rules)..."
+    sudo rm /etc/udev/rules.d/60-vial-corne.rules
+    echo "✅ Old rule removed."
+fi
+
+# Reload udev rules to apply the new rule
+echo "Reloading system rules..."
+sudo udevadm control --reload-rules && sudo udevadm trigger
+echo "✅ System rules reloaded."
 
 ########################################
-# 3. Download latest Vial AppImage
+# 2. Download latest Vial AppImage
 ########################################
 
 REPO="vial-kb/vial-gui"
@@ -66,31 +66,40 @@ chmod +x "$APPIMAGE"
 echo "✅ Vial AppImage ready: $APPIMAGE"
 
 ########################################
-# 4. (Optional) fix current session
-########################################
-# After the udev rules, you normally do NOT need chmod here.
-# If you really need a one‑time fix without making it world‑writable:
-#   sudo chmod 660 /dev/hidraw* 2>/dev/null || true
-# Better: unplug and replug the keyboard so udev applies the new rules.
-
-########################################
-# 5. Verify setup
+# 3. Verify setup and apply temporary fix if needed
 ########################################
 
 echo "🔍 Verifying setup..."
-echo "Active Vial rules:"
-ls -l /etc/udev/rules.d/59-vial.rules /etc/udev/rules.d/60-vial-corne.rules 2>/dev/null || true
-echo ""
-echo "Current hidraw permissions:"
-ls -l /dev/hidraw* 2>/dev/null | grep hidraw || echo "No hidraw devices (unplug/replug)"
+echo "Please unplug and replug your keyboard now to apply the new rules."
+sleep 5 # Give udev time to apply the rules
+
+# Check if the permissions are correct for any hidraw device
+PERMISSIONS_OK=false
+for dev in /dev/hidraw*; do
+    if [ -e "$dev" ]; then
+        if [ "$(stat -c '%g' "$dev")" == "$USER_GID" ]; then
+            PERMISSIONS_OK=true
+            break
+        fi
+    fi
+done
+
+if [ "$PERMISSIONS_OK" = true ]; then
+    echo "✅ Permissions seem to be correct for at least one hidraw device."
+else
+    echo "⚠️  Permissions are not yet correct. Applying temporary fix..."
+    sudo chmod a+rw /dev/hidraw*
+    echo "✅ Temporary permissions applied to all hidraw devices."
+    echo "ℹ️  A reboot is recommended for a permanent fix."
+fi
+
 
 echo ""
 echo "🚀 READY TO CONNECT:"
-echo "1. LOG OUT & LOG IN (or reboot) so group changes take effect"
-echo "2. Unplug LEFT HALF, wait 10s, plug it back in"
-echo "3. Run: $APPIMAGE"
-echo "4. In Vial: Refresh → Corne appears → Connect → Unlock combo"
+echo "1. Run the Vial app: $APPIMAGE"
+echo "2. In Vial: Click 'Refresh'. Your Corne keyboard should appear."
+echo "3. Connect and use the unlock combination if prompted."
 echo ""
-echo "💾 BACKUP: File → Save current layout → corne-backup.json"
+echo "💾 BACKUP: Remember to save your layout once connected: File → Save current layout"
 echo ""
-echo "🐛 Debug: $APPIMAGE 2>&1 | tee vial.log"
+echo "🐛 For debugging, run: $APPIMAGE 2>&1 | tee vial.log"
